@@ -6,6 +6,9 @@ local configs = require 'nvim-treesitter.configs'
 
 local M = {}
 
+M.custom_statements = {
+  css = 'vim.opt_local.iskeyword:append("-")',
+}
 ---A commentstring configuration that includes both single and multi-line
 ---comments. The fields can be anything and they will be retrievable with the
 ---`key` option to `update_commentstring`.
@@ -39,7 +42,10 @@ M.config = {
   -- Languages that have a single comment style
   typescript = { __default = '// %s', __multiline = '/* %s */' },
   css = '/* %s */',
-  scss = { __default = '// %s', __multiline = '/* %s */' },
+  -- postcss = '/* %s */', -- doesn't apply, as svelte plugin seems to always apply lang="scss" if not lang="css"
+  -- tailwindcss = '/* %s */', -- doesn't apply
+  scss = '/* %s */',
+  -- scss = { __default = '// %s', __multiline = '/* %s */' },
   php = { __default = '// %s', __multiline = '/* %s */' },
   html = '<!-- %s -->',
   svelte = '<!-- %s -->',
@@ -136,6 +142,21 @@ function M.calculate_commentstring(args)
   local language = language_tree:lang()
   local language_config = M.config[language]
 
+  vim.notify('language: ' .. language)
+  -- local language_statement = M.custom_statements[language]
+  -- if language_statement ~= nil then
+  -- print 'blah11'
+  -- local result = vim.api.nvim_exec [[
+  --   echo "blah2"
+  -- ]]
+  -- vim.opt_local.iskeyword:append '-'
+  -- else
+  --   print 'blah3'
+  --   local result = vim.api.nvim_exec [[
+  --     echo "blah4"
+  --   ]]
+  -- end
+
   return M.check_node(node, language_config, key)
 end
 
@@ -147,6 +168,24 @@ end
 ---it!
 ---
 ---@param args ts_context_commentstring.Args
+function M.update_commentstring(args)
+  print 'blah10'
+  local result = vim.api.nvim_exec [[
+    echo "blah2"
+  ]]
+  local found_commentstring = M.calculate_commentstring(args)
+
+  if found_commentstring then
+    api.nvim_buf_set_option(0, 'commentstring', found_commentstring)
+  else
+    -- No commentstring was found, default to the default for this buffer
+    local original_commentstring = vim.b.ts_original_commentstring
+    if original_commentstring then
+      api.nvim_buf_set_option(0, 'commentstring', vim.b.ts_original_commentstring)
+    end
+  end
+end
+
 function M.update_commentstring(args)
   local found_commentstring = M.calculate_commentstring(args)
 
