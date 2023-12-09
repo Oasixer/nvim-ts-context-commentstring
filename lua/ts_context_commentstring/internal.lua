@@ -142,7 +142,7 @@ function M.calculate_commentstring(args)
   local language = language_tree:lang()
   local language_config = M.config[language]
 
-  vim.notify('language: ' .. language)
+  -- vim.notify('language: ' .. language)
   -- local language_statement = M.custom_statements[language]
   -- if language_statement ~= nil then
   -- print 'blah11'
